@@ -29,11 +29,14 @@ def generate_pattern(input_img, n_col, width):
     st_ratio = 5/7  # assume 5:7 stitch height:width
 
     # TODO: round these down
-    pps = round(w/width)
-    ppr = round(pps * st_ratio)
+    pps = int(w/width)
+    ppr = int(pps * st_ratio)
 
-    height = int(h * ppr)
-
+    # expand so divider lines stay thin
+    if pps < 10:
+        pixel_multiplier = 10
+    else:
+        pixel_multiplier = 1
 
     # find locations of grid marks
     wp_all = list(range(0, wo, pps))
@@ -41,6 +44,7 @@ def generate_pattern(input_img, n_col, width):
 
     # crop image to remove partial stitches
     result = result[0:max(hp_all), 0:max(wp_all), :]
+    result = cv2.resize(result, (w*pixel_multiplier, h*pixel_multiplier))
 
     for i in range(1,len(wp_all)):
         for j in range(1,len(hp_all)):
@@ -56,14 +60,14 @@ def generate_pattern(input_img, n_col, width):
             #else:
             labels = list(labels[0])
             most_frequent_label = max(set(labels), key = labels.count)
-            result[hl:hu, wl:wu, :] = label_colour[most_frequent_label]
+            result[pixel_multiplier*hl:pixel_multiplier*hu, pixel_multiplier*wl:pixel_multiplier*wu, :] = label_colour[most_frequent_label]
 
     #TODO: resize image larger so grid lines appear thin
     # draw gridlines
     for wp in wp_all:
-        cv2.line(result, (wp, 0), (wp, ho), (0, 255, 0), 1)
+        cv2.line(result, (pixel_multiplier*wp, 0), (pixel_multiplier*wp, pixel_multiplier*ho), (0, 255, 0), 1)
     for hp in hp_all:
-        cv2.line(result, (0, hp), (wo, hp), (0, 255, 0), 1)
+        cv2.line(result, (0, pixel_multiplier*hp), (pixel_multiplier*wo, pixel_multiplier*hp), (0, 255, 0), 1)
 
     # save result
     cv2.imwrite('output/img.png', result)
@@ -72,4 +76,4 @@ def generate_pattern(input_img, n_col, width):
 
 if __name__=='__main__':
 
-    generate_pattern('input/flower1.jpg', N_COLOURS, ST_WIDTH)
+    generate_pattern('input/zebra.jpg', N_COLOURS, ST_WIDTH)
