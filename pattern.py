@@ -27,24 +27,21 @@ def generate_pattern(input_img, n_col, width):
     # calculate number of pixels per row (ppr) and pixels per stitch (pps)
     h, w, c = result.shape
     st_ratio = 5/7  # assume 5:7 stitch height:width
-
-    # TODO: round these down
     pps = int(w/width)
     ppr = int(pps * st_ratio)
 
     # expand so divider lines stay thin
-    if pps < 10:
-        pixel_multiplier = 10
+    if pps < 5:
+        pixel_multiplier = 5
     else:
         pixel_multiplier = 1
 
     # find locations of grid marks
-    wp_all = list(range(0, wo, pps))
-    hp_all = list(range(0, ho, ppr))
+    wp_all = list(range(0, wo+pps, pps))
+    hp_all = list(range(0, ho+ppr, ppr))
 
-    # crop image to remove partial stitches
-    result = result[0:max(hp_all), 0:max(wp_all), :]
-    result = cv2.resize(result, (w*pixel_multiplier, h*pixel_multiplier))
+    final = np.zeros(shape=[max(hp_all)*pixel_multiplier, max(wp_all)*pixel_multiplier, c], dtype=np.uint8)
+    hf, wf, cf = final.shape
 
     for i in range(1,len(wp_all)):
         for j in range(1,len(hp_all)):
@@ -55,25 +52,22 @@ def generate_pattern(input_img, n_col, width):
             hu = hp_all[j]
 
             labels = label_result[hl:hu, wl:wu]
-            #if len(labels)==0:
-            #    continue
-            #else:
             labels = list(labels[0])
             most_frequent_label = max(set(labels), key = labels.count)
-            result[pixel_multiplier*hl:pixel_multiplier*hu, pixel_multiplier*wl:pixel_multiplier*wu, :] = label_colour[most_frequent_label]
 
-    #TODO: resize image larger so grid lines appear thin
+            final[pixel_multiplier*hl:pixel_multiplier*hu, pixel_multiplier*wl:pixel_multiplier*wu, :] = label_colour[most_frequent_label]
+
     # draw gridlines
     for wp in wp_all:
-        cv2.line(result, (pixel_multiplier*wp, 0), (pixel_multiplier*wp, pixel_multiplier*ho), (0, 255, 0), 1)
+        cv2.line(final, (pixel_multiplier*wp, 0), (pixel_multiplier*wp, pixel_multiplier*hf), (0, 255, 0), 1)
     for hp in hp_all:
-        cv2.line(result, (0, pixel_multiplier*hp), (pixel_multiplier*wo, pixel_multiplier*hp), (0, 255, 0), 1)
+        cv2.line(final, (0, pixel_multiplier*hp), (pixel_multiplier*wf, pixel_multiplier*hp), (0, 255, 0), 1)
 
     # save result
-    cv2.imwrite('output/img.png', result)
+    cv2.imwrite('output/img.png', final)
     print('Result saves as output/img.png')
 
 
 if __name__=='__main__':
 
-    generate_pattern('input/zebra.jpg', N_COLOURS, ST_WIDTH)
+    generate_pattern('input/flower1.jpg', N_COLOURS, ST_WIDTH)
