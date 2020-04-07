@@ -26,14 +26,11 @@ def upload():
     for file in request.files.getlist("file"):
         print(file)
         filename = file.filename
-        print('filename is ', filename)
         destination = "/".join([target, filename])
-        print(destination)
         file.save(destination)
 
     renamed_file = 'input_img.jpg'
     os.rename(r'./input/'+filename, r'./input/'+renamed_file)
-    print('renamed....././/./././../././')
 
     n_col = int(request.form['n_col'])
     n_sts = int(request.form['n_sts'])
@@ -44,7 +41,7 @@ def upload():
     fixed_img = generate_pattern(renamed_file, n_col, n_sts, r_gauge, s_gauge)
     fixed_img = fixed_img.split('/')[1]
 
-    return render_template("complete.html", fixed_img=fixed_img)
+    return render_template("complete.html", fixed_img=fixed_img, nc=n_col, ns=n_sts, rg=r_gauge, sg=s_gauge)
 
     #return render_template("complete.html", image_name=filename)
     #return render_template("complete.html", image_name=fixed_img)
@@ -55,7 +52,6 @@ def upload():
 def refresh():
 
     filename = 'input_img.jpg'
-    print('REFRESHHHHHHHH ', filename)
 
     n_col = int(request.form['n_col'])
     n_sts = int(request.form['n_sts'])
@@ -66,7 +62,7 @@ def refresh():
     fixed_img = generate_pattern(filename, n_col, n_sts, r_gauge, s_gauge)
     fixed_img = fixed_img.split('/')[1]
 
-    return render_template("complete.html", fixed_img=fixed_img)
+    return render_template("complete.html", fixed_img=fixed_img, nc=n_col, ns=n_sts, rg=r_gauge, sg=s_gauge)
 
 
 

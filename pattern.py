@@ -6,18 +6,9 @@ import cv2
 def generate_pattern(input_img, n_col, width, row_gauge, st_gauge):
 
     # read in img
-    print('---------------------------')
-    print('---------------------------')
-    print('---------------------------')
-    print('INPUT PARAMS: ')
-    print(input_img)
-    print(n_col)
-    print(width)
 
     img = cv2.imread('input/'+input_img, 1)
     ho, wo, co = img.shape
-
-    print('shape = ', ho, wo, co)
 
     Z = img.reshape((-1, 3))
     Z = np.float32(Z)
