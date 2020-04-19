@@ -1,13 +1,14 @@
-from config import *
 import pandas as pd
 import numpy as np
 import cv2
 
 def generate_pattern(input_img, n_col, width, row_gauge, st_gauge):
+    # generate final knitting pattern and save
 
     # read in img
 
     img = cv2.imread('input/'+input_img, 1)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     ho, wo, co = img.shape
 
     Z = img.reshape((-1, 3))
@@ -25,11 +26,12 @@ def generate_pattern(input_img, n_col, width, row_gauge, st_gauge):
     result = center[label.flatten()]
     result = result.reshape((img.shape))
 
+
     # calculate number of pixels per row (ppr) and pixels per stitch (pps)
     h, w, c = result.shape
     st_ratio = row_gauge/st_gauge
-    pps = int(w/width)
-    ppr = int(pps * st_ratio)
+    pps = int(w/width)+1
+    ppr = int(pps * st_ratio)+1
 
     # expand so divider lines stay thin
     if pps < 5:
@@ -58,17 +60,28 @@ def generate_pattern(input_img, n_col, width, row_gauge, st_gauge):
 
             final[pixel_multiplier*hl:pixel_multiplier*hu, pixel_multiplier*wl:pixel_multiplier*wu, :] = label_colour[most_frequent_label]
 
-    # draw gridlines
-    for wp in wp_all:
-        cv2.line(final, (pixel_multiplier*wp, 0), (pixel_multiplier*wp, pixel_multiplier*hf), (0, 255, 0), 1)
-    for hp in hp_all:
-        cv2.line(final, (0, pixel_multiplier*hp), (pixel_multiplier*wf, pixel_multiplier*hp), (0, 255, 0), 1)
+    # draw gridlines 0, 255, 0 for green
+    for i in range(len(wp_all)):
+        wp = wp_all[i]
+        if i%10 != 0:
+            rgb = (211, 211, 211)
+        else:
+            rgb = (0,255,0)
+        cv2.line(final, (pixel_multiplier*wp, 0), (pixel_multiplier*wp, pixel_multiplier*hf), rgb, 1)
+    for i in range(len(hp_all)):
+        hp=hp_all[i]
+        if i%10 != 0:
+            rgb = (211, 211, 211)
+        else:
+            rgb = (0,255,0)
+        cv2.line(final, (0, pixel_multiplier*hp), (pixel_multiplier*wf, pixel_multiplier*hp), rgb, 1)
 
     # save result
     output_name = 'static/img.png'
+    final = cv2.cvtColor(final, cv2.COLOR_RGBA2BGRA)
     cv2.imwrite(output_name, final)
-    print('Result saves as '+output_name)
-    return output_name
+
+    return output_name, center
 
 
 

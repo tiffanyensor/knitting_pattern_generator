@@ -5,6 +5,7 @@
     <title>Complete</title>
 </head>
 <body>
+<a href="{{ url_for('index') }}">Back</a><br>
 File uploaded, choose the number of stitches and number of colours:
 
 <form action="{{ url_for('refresh') }}" method = "POST" >
@@ -23,7 +24,17 @@ File uploaded, choose the number of stitches and number of colours:
         <input type="submit" value="GO">
 </form>
 
-The image name is {{fixed_img}}<br>
+
+Your yarn colours are shown below: <br>
+
+{% for col in colours %}
+<svg width="40" height="40">
+<rect width="40" height="40" style="fill:rgb({{col[0]}},{{col[1]}},{{col[2]}});stroke-width:3;stroke:rgb(0,0,0)" />
+</svg>
+{{col[0]}}, {{col[1]}}, {{col[2]}} <br>
+{% endfor %}
+
+
 <img src=" {{ url_for('static', filename='img.png' )}}">
 
 </body>

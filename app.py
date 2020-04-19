@@ -12,6 +12,7 @@ def index():
     return render_template("upload.html")
 
 # upload files to a given path
+
 @app.route("/upload", methods=['POST'])
 def upload():
     target = os.path.join(APP_ROOT, 'input')
@@ -38,16 +39,13 @@ def upload():
     r_gauge = int(request.form['row_gauge'])
     s_gauge = int(request.form['st_gauge'])
 
-    fixed_img = generate_pattern(renamed_file, n_col, n_sts, r_gauge, s_gauge)
+    fixed_img, colours = generate_pattern(renamed_file, n_col, n_sts, r_gauge, s_gauge)
     fixed_img = fixed_img.split('/')[1]
 
-    return render_template("complete.html", fixed_img=fixed_img, nc=n_col, ns=n_sts, rg=r_gauge, sg=s_gauge)
-
-    #return render_template("complete.html", image_name=filename)
-    #return render_template("complete.html", image_name=fixed_img)
+    return render_template("complete.html", fixed_img=fixed_img, colours=colours, nc=n_col, ns=n_sts, rg=r_gauge, sg=s_gauge)
 
 
-#@app.route("/refresh/<filename>", methods=['POST'])
+
 @app.route("/refresh", methods=['POST'])
 def refresh():
 
@@ -59,27 +57,12 @@ def refresh():
     r_gauge = int(request.form['row_gauge'])
     s_gauge = int(request.form['st_gauge'])
 
-    fixed_img = generate_pattern(filename, n_col, n_sts, r_gauge, s_gauge)
+    fixed_img, colours = generate_pattern(filename, n_col, n_sts, r_gauge, s_gauge)
     fixed_img = fixed_img.split('/')[1]
 
-    return render_template("complete.html", fixed_img=fixed_img, nc=n_col, ns=n_sts, rg=r_gauge, sg=s_gauge)
+    return render_template("complete.html", fixed_img=fixed_img, colours=colours, nc=n_col, ns=n_sts, rg=r_gauge, sg=s_gauge)
 
 
-
-
-"""
-def generate_image(filename):
-
-    n_col = int(request.form['n_col'])
-    n_sts = int(request.form['n_sts'])
-
-    fixed_img = generate_pattern(filename, n_col, n_sts)
-    print('********* done generating file *******')
-
-    return render_template("complete.html", image_name=fixed_img)
-
-    #return send_from_directory("output", fixed_img)
-"""
 
 
 

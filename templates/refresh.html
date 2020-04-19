@@ -5,14 +5,14 @@
     <title>Refresh</title>
 </head>
 <body>
+<a href="{{ url_for('index') }}">Back</a><br>
+
 File uploaded, choose the number of stitches and number of colours:
-
-
 
 <form action="{{ url_for('refresh') }}" method = "POST" >
 
-      <label for="n_sts">Number of Stitches:</label><br>
-        <input type="number" id="n_sts" name="n_sts" value={{ns}}><br>
+    <label for="n_sts">Number of Stitches:</label><br>
+    <input type="number" id="n_sts" name="n_sts" value={{ns}}><br>
 
     <label for="n_col">Number of Colours:</label><br>
     <input type="number" id="n_col" name="n_col" value={{nc}}><br>
@@ -26,7 +26,8 @@ File uploaded, choose the number of stitches and number of colours:
     <input type="submit" value="GO">
 </form>
 
-The image name is {{fixed_img}}<br>
+
+
 <img src=" {{url_for('send_image', fixed_img=fixed_img)}}">
 
 </body>
