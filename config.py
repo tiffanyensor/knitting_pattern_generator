@@ -1,2 +1,0 @@
-N_COLOURS = 5
-ST_WIDTH = 50

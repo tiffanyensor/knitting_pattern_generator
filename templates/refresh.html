@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Refresh</title>
+</head>
+<body>
+<a href="{{ url_for('index') }}">Back</a><br>
+
+File uploaded, choose the number of stitches and number of colours:
+
+<form action="{{ url_for('refresh') }}" method = "POST" >
+
+    <label for="n_sts">Number of Stitches:</label><br>
+    <input type="number" id="n_sts" name="n_sts" value={{ns}}><br>
+
+    <label for="n_col">Number of Colours:</label><br>
+    <input type="number" id="n_col" name="n_col" value={{nc}}><br>
+
+    <label for="n_sts">Row Gauge (10cm/4inch):</label><br>
+    <input type="number" id="row_gauge" name="row_gauge" value={{rg}}><br>
+
+    <label for="n_col">Stitch Gauge (10cm/inch):</label><br>
+    <input type="number" id="st_gauge" name="st_gauge" value={{sg}}><br>
+
+    <input type="submit" value="GO">
+</form>
+
+
+
+<img src=" {{url_for('send_image', fixed_img=fixed_img)}}">
+
+</body>
+</html>
