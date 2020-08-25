@@ -58,7 +58,7 @@ class ImageEditor():
             cv2.line(
                 img = image,
                 pt1 = (i, 0),
-                pt2 = (i, self.n_rows**self.PPR),
+                pt2 = (i, self.n_rows*self.PPR),
                 color = gridline_colour,
                 thickness = 1
             )
