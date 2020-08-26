@@ -88,10 +88,11 @@ class ImageEditor():
         self.image = cv2.cvtColor(self.image, cv2.COLOR_RGBA2BGRA)
         print('Image saved as {}'.format(self.saved_name))
         cv2.imwrite('./static/'+self.saved_name, self.image)
-        cv2.imwrite('./static/img.png', self.image)
 
 
-
+    def update_colour(self):
+        # manually update one of the colours and re-cluster
+        pass
 
     def fit(self, n_colours, n_stitches, row_gauge, stitch_gauge):
 
