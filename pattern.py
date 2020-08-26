@@ -1,12 +1,11 @@
 import pandas as pd
 import numpy as np
 import cv2
-
+import glob
 
 # TODO: add check if img & params already exist
 # TODO: add clean-up of old files whne app starts
 # TODO: fit image width to size of browser
-
 
 
 ####### ----- TODO: have one accessible method, fit
@@ -33,7 +32,7 @@ class ImageEditor():
         self.n_rows = None
         self.row_gauge = None
         self.stitch_gauge = None
-        self.colour_swatches = []
+        self.colour_swatches = {}
 
 
     def prepare_img(self):
@@ -94,6 +93,25 @@ class ImageEditor():
         # manually update one of the colours and re-cluster
         pass
 
+
+    def cluster(self):
+
+        pixelated_img = cv2.resize(self.image, dsize=(self.n_stitches, self.n_rows))
+
+        # clustering on pixels
+        Z = pixelated_img.reshape((-1, 3))
+        Z = np.float32(Z)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+        ret, label, center = cv2.kmeans(Z, self.n_colours, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+
+        #label_result = label.reshape(img.shape[0], img.shape[1])
+        center = np.uint8(center)
+
+        self.colour_swatches[self.saved_name] = center
+        self.image = center[label.flatten()].reshape((pixelated_img.shape))
+
+
+
     def fit(self, n_colours, n_stitches, row_gauge, stitch_gauge):
 
         self.n_colours = n_colours
@@ -110,20 +128,14 @@ class ImageEditor():
             str(self.stitch_gauge)
         ])+'.png'
 
-        #
-        #if self.saved_name in list_of_saved_files:
 
-        # resize the image so each pixel is onr stitch, one row (thi will distort it)
-        pixelated_img = cv2.resize(self.image, dsize=(self.n_stitches, self.n_rows))
+        if './static/'+self.saved_name not in glob.glob('./static/*.png'):
+            print('generating new file')
+            self.cluster()
+            self.prepare_img()
+            self.draw_gridlines()
+            self.save_img()
 
-        # clustering on pixels
-        Z = pixelated_img.reshape((-1, 3))
-        Z = np.float32(Z)
-        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-        ret, label, center = cv2.kmeans(Z, self.n_colours, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-
-        #label_result = label.reshape(img.shape[0], img.shape[1])
-        center = np.uint8(center)
-
-        self.colour_swatches = center
-        self.image = center[label.flatten()].reshape((pixelated_img.shape))
+        else:
+            self.cluster()
+            print('file already done.')
