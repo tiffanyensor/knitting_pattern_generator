@@ -1,16 +1,10 @@
-
-.input-color {
-    position: relative;
+#left {
+  width: 200px;
+  float: left;
 }
-.input-color input {
-    padding-left: 20px;
+#right {
+  margin-left: 200px;
 }
-.input-color .color-box {
-    width: 10px;
-    height: 10px;
-    display: inline-block;
-    background-color: #ccc;
-    position: absolute;
-    left: 5px;
-    top: 5px;
+.clear {
+  clear: both;
 }
