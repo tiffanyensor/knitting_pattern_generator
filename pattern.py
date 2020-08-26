@@ -7,7 +7,6 @@ import glob
 # TODO: add clean-up of old files whne app starts
 # TODO: fit image width to size of browser
 
-
 ####### ----- TODO: have one accessible method, fit
 ####3 -- TODO: add hidden methods for cluster, resize, gridlines
 
@@ -128,9 +127,8 @@ class ImageEditor():
             str(self.stitch_gauge)
         ])+'.png'
 
-
+        # if the combination of params has been done already, img already exists
         if './static/'+self.saved_name not in glob.glob('./static/*.png'):
-            print('generating new file')
             self.cluster()
             self.prepare_img()
             self.draw_gridlines()
@@ -138,4 +136,3 @@ class ImageEditor():
 
         else:
             self.cluster()
-            print('file already done.')

@@ -1,4 +1,5 @@
 import os
+import glob
 from flask import Flask, render_template, request, send_from_directory, send_file
 from pattern import ImageEditor
 
@@ -9,18 +10,27 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 @app.route("/")
 def index():
+    # empty the old files out
+    input_directory = os.path.join(APP_ROOT, 'input')
+    static_directory = os.path.join(APP_ROOT, 'static')
+
+    if not os.path.isdir(input_directory):
+        os.mkdir(input_directory)
+
+    for f in glob.glob(input_directory+'/*'):
+        os.remove(f)
+
+    for f in glob.glob(static_directory+'/*.png'):
+        os.remove(f)
+
     return render_template("upload.html")
 
 # upload files to a given path
 
 @app.route("/upload", methods=['POST'])
 def upload():
-    target = os.path.join(APP_ROOT, 'input')
-    print(target)
 
-    if not os.path.isdir(target):
-        os.mkdir(target)
-
+    input_directory = os.path.join(APP_ROOT, 'input')
     filename = None
 
     #TODO: only one file
@@ -28,7 +38,7 @@ def upload():
         print(file)
         filename = file.filename
         filename = filename.replace(' ', '_')
-        destination = "/".join([target, filename])
+        destination = "/".join([input_directory, filename])
         file.save(destination)
 
     #TODO: fix, r and s are reversed, should be s>r condition
