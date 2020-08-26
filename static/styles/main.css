@@ -1,0 +1,11 @@
+#left {
+  width: 200px;
+  float: left;
+  background-color: whitesmoke;
+}
+#right {
+  margin-left: 200px;
+}
+.clear {
+  clear: both;
+}

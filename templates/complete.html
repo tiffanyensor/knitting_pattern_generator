@@ -3,39 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <title>Complete</title>
+    <link href="../styles/main.css" rel="stylesheet" type="text/css", media="screen"/>
+
 </head>
+
 <body>
-<a href="{{ url_for('index') }}">Back</a><br>
-File uploaded, choose the number of stitches and number of colours:
+  <div id="container">
+    <div id="left">
 
-<form action="{{ url_for('refresh') }}" method = "POST" >
-      <label for="n_sts">Number of Stitches:</label><br>
-        <input type="number" id="n_sts" name="n_sts" value={{ns}}><br>
+        <a href="{{ url_for('index') }}">Back</a><br>
+        File uploaded {{original_img}}.
 
-    <label for="n_col">Number of Colours:</label><br>
-    <input type="number" id="n_col" name="n_col" value={{nc}}><br>
+        <br><br>Please specify the number of stitches, number of colours, and your gauge:
+          <br><br>
 
-    <label for="n_sts">Row Gauge (10cm/4inch):</label><br>
-    <input type="number" id="row_gauge" name="row_gauge" value={{rg}}><br>
+        <form action="{{ url_for('refresh', original_img=original_img)}}" method = "POST" >
+            <label for="n_sts">Number of Stitches:</label><br>
+            <input type="number" id="n_sts" name="n_sts" value={{ns}}><br>
 
-    <label for="n_col">Stitch Gauge (10cm/inch):</label><br>
-    <input type="number" id="st_gauge" name="st_gauge" value={{sg}}><br>
+            <label for="n_col">Number of Colours:</label><br>
+            <input type="number" id="n_col" name="n_col" value={{nc}}><br>
 
-        <input type="submit" value="GO">
-</form>
+            <label for="n_sts">Row Gauge (10cm/4inch):</label><br>
+            <input type="number" id="row_gauge" name="row_gauge" value={{rg}}><br>
+
+            <label for="n_col">Stitch Gauge (10cm/inch):</label><br>
+            <input type="number" id="st_gauge" name="st_gauge" value={{sg}}><br>
+
+            <input type="submit" value="GO">
+        </form>
+
+        Your yarn colours are shown below: <br>
+
+        {% for col in colours %}
+        <svg width="40" height="40">
+            <rect width="40" height="40" style="fill:rgb({{col[0]}},{{col[1]}},{{col[2]}});stroke-width:3;stroke:rgb(0,0,0)" />
+        </svg>
+        {{col[0]}}, {{col[1]}}, {{col[2]}} <br>
+        {% endfor %}
+
+    </div>
+    <div id="right">
+            <img src=" {{ url_for('static', filename=fixed_img )}}">
+    </div>
+    <div class="clear"></div>
+  </div>
 
 
-Your yarn colours are shown below: <br>
-
-{% for col in colours %}
-<svg width="40" height="40">
-<rect width="40" height="40" style="fill:rgb({{col[0]}},{{col[1]}},{{col[2]}});stroke-width:3;stroke:rgb(0,0,0)" />
-</svg>
-{{col[0]}}, {{col[1]}}, {{col[2]}} <br>
-{% endfor %}
 
 
-<img src=" {{ url_for('static', filename='img.png' )}}">
 
 </body>
 </html>

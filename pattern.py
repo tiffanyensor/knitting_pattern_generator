@@ -1,91 +1,132 @@
 import pandas as pd
 import numpy as np
 import cv2
+import glob
 
-def generate_pattern(input_img, n_col, width, row_gauge, st_gauge):
-    # generate final knitting pattern and save
-
-    # read in img
-
-    img = cv2.imread('input/'+input_img, 1)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    ho, wo, co = img.shape
-
-    Z = img.reshape((-1, 3))
-    Z = np.float32(Z)
-
-    # apply k means clustering
-    criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
-    ret, label, center = cv2.kmeans(Z, n_col, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
-
-    # map label to colours
-    label_colour = {i:center[i] for i in range(len(center))}
-
-    label_result = label.reshape(ho,wo)
-    center = np.uint8(center)
-    result = center[label.flatten()]
-    result = result.reshape((img.shape))
+# TODO: fit image width to size of browser
 
 
-    # calculate number of pixels per row (ppr) and pixels per stitch (pps)
-    h, w, c = result.shape
-    st_ratio = row_gauge/st_gauge
-    pps = int(w/width)+1
-    ppr = int(pps * st_ratio)+1
+class ImageEditor():
 
-    # expand so divider lines stay thin
-    if pps < 5:
-        pixel_multiplier = 5
-    else:
-        pixel_multiplier = 1
+    def __init__(self, input_img):
 
-    # find locations of grid marks
-    wp_all = list(range(0, wo+pps, pps))
-    hp_all = list(range(0, ho+ppr, ppr))
+        # files
+        self.image_name = input_img.split('.')[0]
+        self.image_ext = input_img.split('.')[1]
+        self.saved_name = None
 
-    final = np.zeros(shape=[max(hp_all)*pixel_multiplier, max(wp_all)*pixel_multiplier, c], dtype=np.uint8)
-    hf, wf, cf = final.shape
+        # images
+        self.original_img = cv2.cvtColor(cv2.imread('./input/'+input_img, 1), cv2.COLOR_BGR2RGB)
+        self.image = self.original_img
 
-    for i in range(1,len(wp_all)):
-        for j in range(1,len(hp_all)):
-            wl = wp_all[i-1]
-            wu = wp_all[i]
+        # chart parameters
+        self.n_colours = None
+        self.n_stitches = None
+        self.n_rows = None
+        self.row_gauge = None
+        self.stitch_gauge = None
+        self.colour_swatches = {}
 
-            hl = hp_all[j-1]
-            hu = hp_all[j]
 
-            labels = label_result[hl:hu, wl:wu]
-            labels = list(labels[0])
-            most_frequent_label = max(set(labels), key = labels.count)
+    def prepare_img(self):
 
-            final[pixel_multiplier*hl:pixel_multiplier*hu, pixel_multiplier*wl:pixel_multiplier*wu, :] = label_colour[most_frequent_label]
+        # resize, bring back to original proportions, add gridlines
+        width_per_pixel = 10
+        height_per_pixel = round(width_per_pixel * self.row_gauge / self.stitch_gauge)
 
-    # draw gridlines 0, 255, 0 for green
-    for i in range(len(wp_all)):
-        wp = wp_all[i]
-        if i%10 != 0:
-            rgb = (211, 211, 211)
+        desired_height = height_per_pixel*self.n_rows
+        desired_width = width_per_pixel*self.n_stitches
+
+        resized_img = np.zeros(shape=[desired_height, desired_width, self.image.shape[2]], dtype=np.uint8)
+
+        for h in range(self.n_rows):
+            for w in range(self.n_stitches):
+                resized_img[h*height_per_pixel:(h+1)*height_per_pixel, w*width_per_pixel:(w+1)*width_per_pixel,:] = self.image[h,w,:]
+
+        self.image = resized_img
+
+
+
+    def draw_gridlines(self, w_major=10, h_major = 10, major_colour=(255,0,0), minor_colour=(255,255,255)):
+
+        width_per_pixel = 10
+        height_per_pixel = round(width_per_pixel * self.row_gauge / self.stitch_gauge)
+
+        # vertical grid
+        for w in range(self.n_stitches):
+            gridline_colour = major_colour if w % w_major==0 else minor_colour
+            cv2.line(
+                img=self.image,
+                pt1=(w * width_per_pixel, 0),
+                pt2=(w * width_per_pixel, self.image.shape[0]),
+                color=gridline_colour,
+                thickness=1
+            )
+
+        # horizontal grid
+        for h in range(self.n_rows):
+            gridline_colour = major_colour if h % h_major==0 else minor_colour
+            # horizontal grid
+            cv2.line(
+                img=self.image,
+                pt1=(0, h * height_per_pixel),
+                pt2=(self.image.shape[1], h * height_per_pixel),
+                color=gridline_colour,
+                thickness=1
+            )
+
+
+    def save_img(self):
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_RGBA2BGRA)
+        print('Image saved as {}'.format(self.saved_name))
+        cv2.imwrite('./static/'+self.saved_name, self.image)
+
+
+    def update_colour(self):
+        # manually update one of the colours and re-cluster
+        pass
+
+
+    def cluster(self):
+
+        pixelated_img = cv2.resize(self.image, dsize=(self.n_stitches, self.n_rows))
+
+        # clustering on pixels
+        Z = pixelated_img.reshape((-1, 3))
+        Z = np.float32(Z)
+        criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10, 1.0)
+        ret, label, center = cv2.kmeans(Z, self.n_colours, None, criteria, 10, cv2.KMEANS_RANDOM_CENTERS)
+
+        #label_result = label.reshape(img.shape[0], img.shape[1])
+        center = np.uint8(center)
+
+        self.colour_swatches[self.saved_name] = center
+        self.image = center[label.flatten()].reshape((pixelated_img.shape))
+
+
+
+    def fit(self, n_colours, n_stitches, row_gauge, stitch_gauge):
+
+        self.n_colours = n_colours
+        self.n_stitches = n_stitches
+        self.row_gauge = row_gauge
+        self.stitch_gauge = stitch_gauge
+
+        self.n_rows = int(self.n_stitches * self.stitch_gauge / self.row_gauge)
+        self.saved_name = '_'.join([
+            self.image_name,
+            str(self.n_colours),
+            str(self.n_stitches),
+            str(self.row_gauge),
+            str(self.stitch_gauge)
+        ])+'.png'
+
+        # if the combination of params has been done already, img already exists
+        if './static/'+self.saved_name not in glob.glob('./static/*.png'):
+            self.cluster()
+            self.prepare_img()
+            self.draw_gridlines()
+            self.save_img()
+
         else:
-            rgb = (0,255,0)
-        cv2.line(final, (pixel_multiplier*wp, 0), (pixel_multiplier*wp, pixel_multiplier*hf), rgb, 1)
-    for i in range(len(hp_all)):
-        hp=hp_all[i]
-        if i%10 != 0:
-            rgb = (211, 211, 211)
-        else:
-            rgb = (0,255,0)
-        cv2.line(final, (0, pixel_multiplier*hp), (pixel_multiplier*wf, pixel_multiplier*hp), rgb, 1)
-
-    # save result
-    output_name = 'static/img.png'
-    final = cv2.cvtColor(final, cv2.COLOR_RGBA2BGRA)
-    cv2.imwrite(output_name, final)
-
-    return output_name, center
-
-
-
-
-#if __name__=='__main__':
-
-#    generate_pattern('input/flower1.jpg', N_COLOURS, ST_WIDTH)
+            self.cluster()
