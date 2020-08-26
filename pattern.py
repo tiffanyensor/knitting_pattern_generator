@@ -3,14 +3,8 @@ import numpy as np
 import cv2
 import glob
 
-# TODO: add check if img & params already exist
-# TODO: add clean-up of old files whne app starts
 # TODO: fit image width to size of browser
 
-####### ----- TODO: have one accessible method, fit
-####3 -- TODO: add hidden methods for cluster, resize, gridlines
-
-# Separate class for image?
 
 class ImageEditor():
 
