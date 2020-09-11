@@ -45,8 +45,8 @@ def upload():
     # initialize some values
     n_col = 4
     n_sts = 40
-    r_gauge = 24
-    s_gauge = 18
+    r_gauge = 18
+    s_gauge = 24
 
     ie = ImageEditor(filename)
     ie.fit(n_col, n_sts, r_gauge, s_gauge)
