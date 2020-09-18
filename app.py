@@ -41,7 +41,6 @@ def upload():
         destination = "/".join([input_directory, filename])
         file.save(destination)
 
-    #TODO: fix, r and s are reversed, should be s>r condition
     # initialize some values
     n_col = 4
     n_sts = 40
@@ -99,6 +98,6 @@ def send_image(fixed_img):
 
 
 if __name__ == '__main__':
-    app.run(port=4555, debug=True)
+    app.run(debug=True)
 
 

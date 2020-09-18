@@ -1,6 +1,8 @@
 version: '3.0'
 services:
-  app:
+  web:
     build: .
     ports:
-    - "5000:5000"
+      - "5000:5000"
+    volumes:
+      - .:/opt/knitting_app/
