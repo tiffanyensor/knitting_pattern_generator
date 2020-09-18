@@ -24,11 +24,16 @@
             <label for="n_col">Number of Colours:</label><br>
             <input type="number" id="n_col" name="n_col" value={{nc}}><br>
 
-            <label for="n_sts">Stitch Gauge (10cm/4inch):</label><br>
+            <label for="n_sts">Row Gauge (10cm/4inch):</label><br>
             <input type="number" id="row_gauge" name="row_gauge" value={{rg}}><br>
 
-            <label for="n_col">Row Gauge (10cm/inch):</label><br>
+            <label for="n_col">Stitch Gauge (10cm/inch):</label><br>
             <input type="number" id="st_gauge" name="st_gauge" value={{sg}}><br>
+
+
+            <label for="blur">Reduce Image Noise:</label> {{blur}} <br>
+            0 <input type="range" id="blur" name="blur" value={{blur}} min="0" max="200" step="10"> 200 <br>
+
 
             <input type="submit" value="GO">
         </form>
