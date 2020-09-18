@@ -44,11 +44,12 @@ def upload():
     # initialize some values
     n_col = 4
     n_sts = 40
-    r_gauge = 18
-    s_gauge = 24
+    r_gauge = 24
+    s_gauge = 18
+    blur = 10
 
     ie = ImageEditor(filename)
-    ie.fit(n_col, n_sts, r_gauge, s_gauge)
+    ie.fit(n_col, n_sts, r_gauge, s_gauge, blur)
 
     return render_template("complete.html",
                            original_img = filename,
@@ -57,7 +58,8 @@ def upload():
                            nc=n_col,
                            ns=n_sts,
                            rg=r_gauge,
-                           sg=s_gauge)
+                           sg=s_gauge,
+                           blur = blur)
 
 
 
@@ -71,8 +73,11 @@ def refresh(original_img):
     r_gauge = int(request.form['row_gauge'])
     s_gauge = int(request.form['st_gauge'])
 
+    blur = int(request.form['blur'])
+
+
     ie = ImageEditor(original_img)
-    ie.fit(n_col, n_sts, r_gauge, s_gauge)
+    ie.fit(n_col, n_sts, r_gauge, s_gauge, blur)
 
     return render_template("complete.html",
                            original_img = original_img,
@@ -81,7 +86,8 @@ def refresh(original_img):
                            nc=n_col,
                            ns=n_sts,
                            rg=r_gauge,
-                           sg=s_gauge)
+                           sg=s_gauge,
+                           blur = blur)
 
 
 
